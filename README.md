@@ -1,4 +1,4 @@
-# ZirAddon
+# ZirAddon (Được tôi nấu lại từ cái ADDON 500.000 VNĐ rác rưởi)
 
 ## Full Version Details
 - Minecraft Target: 1.21.11
