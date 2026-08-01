@@ -41,37 +41,39 @@ public class ClientPlayerInteractionManagerMixin {
         BlockState state = player.getEntityWorld().getBlockState(hitResult.getBlockPos());
         Block block = state.getBlock();
         return block instanceof BlockWithEntity
-            || block instanceof CraftingTableBlock
-            || block instanceof AnvilBlock
-            || block instanceof LoomBlock
-            || block instanceof CartographyTableBlock
-            || block instanceof GrindstoneBlock
-            || block instanceof StonecutterBlock
-            || block instanceof SmithingTableBlock
-            || block instanceof LecternBlock
-            || block instanceof EnchantingTableBlock
-            || block instanceof LeverBlock
-            || block instanceof ButtonBlock
-            || block instanceof FenceGateBlock
-            || block instanceof DoorBlock
-            || block instanceof TrapdoorBlock
-            || block instanceof NoteBlock
-            || block instanceof JukeboxBlock
-            || block instanceof RepeaterBlock
-            || block instanceof ComparatorBlock
-            || block instanceof BedBlock
-            || block instanceof BellBlock
-            || block instanceof ComposterBlock
-            || block instanceof ChiseledBookshelfBlock
-            || block instanceof FlowerPotBlock
-            || block instanceof CakeBlock;
+                || block instanceof CraftingTableBlock
+                || block instanceof AnvilBlock
+                || block instanceof LoomBlock
+                || block instanceof CartographyTableBlock
+                || block instanceof GrindstoneBlock
+                || block instanceof StonecutterBlock
+                || block instanceof SmithingTableBlock
+                || block instanceof LecternBlock
+                || block instanceof EnchantingTableBlock
+                || block instanceof LeverBlock
+                || block instanceof ButtonBlock
+                || block instanceof FenceGateBlock
+                || block instanceof DoorBlock
+                || block instanceof TrapdoorBlock
+                || block instanceof NoteBlock
+                || block instanceof JukeboxBlock
+                || block instanceof RepeaterBlock
+                || block instanceof ComparatorBlock
+                || block instanceof BedBlock
+                || block instanceof BellBlock
+                || block instanceof ComposterBlock
+                || block instanceof ChiseledBookshelfBlock
+                || block instanceof FlowerPotBlock
+                || block instanceof CakeBlock;
     }
 
     private static long lastInvSwapTime = 0;
 
     @Inject(method = "interactBlock", at = @At("HEAD"), cancellable = true)
     private void onInteractBlockHead(ClientPlayerEntity player, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
-        if (player == null) return;
+        if (player == null) {
+            return;
+        }
 
         AutoPlace autoPlace = Modules.get().get(AutoPlace.class);
         AutoDirection autoDir = Modules.get().get(AutoDirection.class);
@@ -79,9 +81,10 @@ public class ClientPlayerInteractionManagerMixin {
         boolean isAutoPlaceActive = autoPlace != null && autoPlace.isActive();
         boolean isAutoDirActive = autoDir != null && autoDir.isActive();
 
-        if (!isAutoPlaceActive && !isAutoDirActive) return;
+        if (!isAutoPlaceActive && !isAutoDirActive) {
+            return;
+        }
 
-        // Block manual player interaction with Repeater or Comparator to prevent accidental tick adjustment
         if (isAutoPlaceActive && autoPlace.isAdjustRedstone() && !RotationSpoofer.isPlacingLater) {
             Block clickedBlock = MinecraftClient.getInstance().world.getBlockState(hitResult.getBlockPos()).getBlock();
             if (clickedBlock instanceof RepeaterBlock || clickedBlock instanceof ComparatorBlock) {
@@ -90,19 +93,16 @@ public class ClientPlayerInteractionManagerMixin {
             }
         }
 
-        // Prevent GUI / Auto Sneak
         boolean preventGui = isAutoPlaceActive && autoPlace.isPreventGui();
         if (preventGui && !player.isSneaking() && shouldSneakPlaceAgainst(player, hitResult)) {
             this.spoofedSneak = true;
             player.networkHandler.sendPacket(new PlayerInputC2SPacket(new PlayerInput(false, false, false, false, false, true, false)));
         }
 
-        // If this is the delayed placement event triggered from client tick, allow vanilla interactBlock to execute
         if (RotationSpoofer.isPlacingLater) {
             return;
         }
 
-        // Handle AutoDirection
         if (AutoDirection.applyDirection(player.getStackInHand(hand).getItem(), hand, hitResult)) {
             cir.setReturnValue(ActionResult.FAIL);
             return;
@@ -112,23 +112,23 @@ public class ClientPlayerInteractionManagerMixin {
             return;
         }
 
-        // If a spoofed placement is already queued in this tick, fail this interaction so Litematica retries later
         if (RotationSpoofer.isQueued) {
             cir.setReturnValue(ActionResult.FAIL);
             return;
         }
 
-        // Enforce Placement Delay
         if (System.currentTimeMillis() - RotationSpoofer.lastPlaceTime < autoPlace.getPlaceDelayMs()) {
             cir.setReturnValue(ActionResult.FAIL);
             return;
         }
 
         World schematicWorld = SchematicWorldHandler.getSchematicWorld();
-        if (schematicWorld == null) return;
+        if (schematicWorld == null) {
+            return;
+        }
 
         ItemStack currentStack = player.getStackInHand(hand);
-        
+
         BlockPos targetPos;
         if (currentStack.getItem() instanceof BucketItem || currentStack.getItem() == Items.POWDER_SNOW_BUCKET) {
             BlockState clickedState = MinecraftClient.getInstance().world.getBlockState(hitResult.getBlockPos());
@@ -142,7 +142,6 @@ public class ClientPlayerInteractionManagerMixin {
             targetPos = placementCtx.getBlockPos();
         }
 
-        // Lock Layer setting
         if (autoPlace.isLockLayer()) {
             LayerRange range = DataManager.getRenderLayerRange();
             if (range != null && !range.isPositionWithinRange(targetPos)) {
@@ -153,7 +152,6 @@ public class ClientPlayerInteractionManagerMixin {
 
         BlockState stateSchematic = schematicWorld.getBlockState(targetPos);
 
-        // Limit / Lock to Schematic setting
         if (autoPlace.isLimitToSchematic() || autoPlace.isLockToSchematic()) {
             if (stateSchematic == null || stateSchematic.isAir()) {
                 if (currentStack.getItem() instanceof BlockItem || currentStack.getItem() instanceof BucketItem) {
@@ -177,7 +175,6 @@ public class ClientPlayerInteractionManagerMixin {
             requiredItem = Items.POWDER_SNOW_BUCKET;
         }
 
-        // Auto Pick setting (instant swap, zero delay)
         if (autoPlace.isAutoPick() && currentStack.getItem() != requiredItem && hand == Hand.MAIN_HAND) {
             int foundSlot = -1;
             for (int i = 0; i < 36; i++) {
@@ -208,12 +205,13 @@ public class ClientPlayerInteractionManagerMixin {
             }
         }
 
-
-
-        // Re-fetch stack after potential swap
         ItemStack stack = player.getStackInHand(hand);
-        if (stack.isEmpty()) return;
-        if (!(stack.getItem() instanceof BlockItem) && !(stack.getItem() instanceof BucketItem)) return;
+        if (stack.isEmpty()) {
+            return;
+        }
+        if (!(stack.getItem() instanceof BlockItem) && !(stack.getItem() instanceof BucketItem)) {
+            return;
+        }
         if (stack.getItem() != requiredItem) {
             cir.setReturnValue(ActionResult.FAIL);
             return;
@@ -249,8 +247,6 @@ public class ClientPlayerInteractionManagerMixin {
             RotationSpoofer.savedHand = hand;
             RotationSpoofer.savedHitResult = hitResult;
             RotationSpoofer.savedPlacedPos = targetPos;
-
-
 
             RotationSpoofer.currentSpoofedYaw = spoofedYaw;
             RotationSpoofer.currentSpoofedPitch = spoofedPitch;
