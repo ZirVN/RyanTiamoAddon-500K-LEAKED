@@ -1,4 +1,5 @@
-# ZirAddon 🚀
+# ZirAddon 🚀 (Được tôi remake lại từ cái addon rác 500.000 VNĐ)
+> Phiên bản: 1.21.11
 
 [![Minecraft](https://img.shields.io/badge/Minecraft-1.21.11-brightgreen.svg)](https://minecraft.net/)
 [![Fabric](https://img.shields.io/badge/Fabric-0.18.2-blue.svg)](https://fabricmc.net/)
