@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "ziraddon",
+  "version": "1.3.6-R67",
+
+  "name": "ZirAddon",
+  "description": "ZirVN Meteor Client Addon - https://zyo.lol/zirvn",
+  "authors": [
+    "ZirVN"
+  ],
+  "contact": {
+    "homepage": "https://zyo.lol/zirvn"
+  },
+  "license": "MIT",
+  "icon": "assets/ziraddon/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "meteor": [
+      "com.zirvn.addon.ZirAddon"
+    ]
+  },
+  "mixins": [
+    "ziraddon.mixins.json"
+  ],
+  "custom": {
+    "meteor-client:color": "0,255,180"
+  },
+  "depends": {
+    "java": ">=21",
+    "minecraft": ["1.21.11"],
+    "meteor-client": "*",
+    "litematica": "*"
+  }
+}

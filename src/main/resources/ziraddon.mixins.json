@@ -1,0 +1,22 @@
+{
+  "required": true,
+  "package": "com.zirvn.addon.mixins",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ClientPlayerEntityMixin",
+    "ClientPlayerInteractionManagerMixin",
+    "ClientPlayerInteractionManagerAccessor",
+    "PlayerInventoryAccessor",
+    "ChatHudMixin",
+    "CrafterScreenMixin",
+    "HandledScreenAccessor",
+    "MinecraftClientMixin",
+    "litematica.EasyPlaceUtilsMixin",
+    "litematica.WorldUtilsMixin"
+  ],
+
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
+
